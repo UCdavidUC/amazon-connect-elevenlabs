@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integración de Amazon Connect con ElevenLabs TTS y Amazon Lex con Bedrock RAG</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --aws-orange: #FF9900;
+            --aws-dark: #232F3E;
+            --aws-light-gray: #F2F3F3;
+            --aws-blue: #0073BB;
+            --text-primary: #16191F;
+            --text-secondary: #545B64;
+            --border-color: #D5DBDB;
+            --code-bg: #1B2631;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Amazon Ember", "Helvetica Neue", Roboto, Arial, sans-serif;
+            line-height: 1.8;
+            color: var(--text-primary);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fff;
+        }
+
+        /* AWS Blog Header Style */
+        .blog-meta {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .blog-meta .category {
+            color: var(--aws-blue);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .author-info .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--aws-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .author-info .author-details {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .author-info .author-name {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 48px;
+            margin-bottom: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        ul, ol {
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        code {
+            background: var(--aws-light-gray);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Source Code Pro", Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: #F8F8F2;
+            padding: 20px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+            font-family: "Source Code Pro", Monaco, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        th {
+            background: var(--aws-dark);
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:nth-child(even) {
+            background: var(--aws-light-gray);
+        }
+
+        .callout {
+            background: #FFF8E1;
+            border-left: 4px solid var(--aws-orange);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .callout-info {
+            background: #E3F2FD;
+            border-left-color: var(--aws-blue);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .diagram-container {
+            background: var(--aws-light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .diagram-container .caption {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            font-style: italic;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--aws-orange);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        .services-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .service-card {
+            background: var(--aws-light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .service-card .service-name {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .service-card .service-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="blog-meta">
+    <span class="category">Machine Learning</span> | <span class="category">Contact Center</span>
+</div>
+
+<h1>Integración de Amazon Connect con ElevenLabs TTS y Amazon Lex con Bedrock RAG para Contact Centers Inteligentes</h1>
+
+<div class="author-info">
+    <div class="author-avatar">DL</div>
+    <div class="author-details">
+        <div class="author-name">David L.</div>
+        <div>Publicado el 5 de mayo de 2026 | Tiempo de lectura: 15 minutos</div>
+    </div>
+</div>
+
+<p>Los contact centers modernos enfrentan un desafío constante: ofrecer experiencias de voz naturales y personalizadas mientras mantienen la eficiencia operativa. En este post, mostramos cómo integrar <strong>Amazon Connect</strong> con <strong>ElevenLabs</strong> para text-to-speech de alta calidad y <strong>Amazon Lex con Bedrock RAG</strong> para respuestas inteligentes basadas en una base de conocimiento.</p>
+
+<p>Esta solución permite que un asistente virtual atienda llamadas con una voz indistinguible de la humana, responda preguntas usando Retrieval-Augmented Generation (RAG) con Amazon Bedrock, y escale a agentes humanos cuando sea necesario.</p>
+
+<h2>Arquitectura de la solución</h2>
+
+<p>La arquitectura combina cuatro servicios principales de AWS con ElevenLabs como proveedor de voz externo:</p>
+
+<div class="services-list">
+    <div class="service-card">
+        <div class="service-name">Amazon Connect</div>
+        <div class="service-role">Orquestación de llamadas</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">ElevenLabs TTS</div>
+        <div class="service-role">Síntesis de voz</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">Amazon Lex V2</div>
+        <div class="service-role">Comprensión de lenguaje</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">Amazon Bedrock</div>
+        <div class="service-role">RAG + Knowledge Base</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">AWS Secrets Manager</div>
+        <div class="service-role">Almacenamiento seguro de API key</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">AWS KMS</div>
+        <div class="service-role">Cifrado del secreto</div>
+    </div>
+</div>
+
+<div class="diagram-container">
+    <pre class="mermaid">
+flowchart TD
+    A[📞 Llamada Entrante] --> B[Amazon Connect<br/>Flujo de Contacto]
+    B --> C[Set Voice<br/>ElevenLabs TTS]
+    C --> D[Play Prompt<br/>Bienvenida]
+    D --> E[Get Customer Input<br/>Lex + Bedrock RAG]
+    
+    E -->|FallbackIntent<br/>RAG responde| E
+    E -->|EndConversation| F[Play Prompt<br/>Despedida]
+    E -->|TransferToAgent| G[Play Prompt<br/>Transferencia]
+    E -->|Timeout| H[Play Prompt<br/>¿Sigue ahí?]
+    E -->|Error| I[Respaldo Polly<br/>+ Transfer Queue]
+    
+    F --> J[🔴 Disconnect]
+    G --> K[Transfer to Queue<br/>Agentes Humanos]
+    H --> E
+    
+    C -.->|API Key| L[(Secrets Manager)]
+    L -.->|Cifrado| M[KMS Key]
+    E -.->|NLU + RAG| N[Amazon Bedrock<br/>Knowledge Base]
+
+    style A fill:#FF9900,color:#fff
+    style C fill:#0073BB,color:#fff
+    style E fill:#0073BB,color:#fff
+    style N fill:#0073BB,color:#fff
+    style J fill:#D13212,color:#fff
+    style K fill:#1B660F,color:#fff
+    </pre>
+    <div class="caption">Figura 1. Arquitectura del flujo conversacional con ElevenLabs TTS y Lex + Bedrock RAG</div>
+</div>
+
+<h2>Cómo funciona</h2>
+
+<ol>
+    <li><strong>El usuario llama</strong> al número telefónico de Amazon Connect.</li>
+    <li><strong>Set Voice</strong> configura ElevenLabs como el motor TTS para todo el flujo.</li>
+    <li><strong>Play Prompt</strong> reproduce el mensaje de bienvenida con la voz de ElevenLabs.</li>
+    <li><strong>Get Customer Input</strong> escucha al usuario y envía el audio a Amazon Lex.</li>
+    <li><strong>Lex + Bedrock RAG</strong> procesa la pregunta, consulta la Knowledge Base, y genera una respuesta.</li>
+    <li><strong>Connect reproduce la respuesta</strong> usando la voz de ElevenLabs.</li>
+    <li><strong>El flujo regresa</strong> al paso 4 (loop conversacional) hasta que el usuario se despida o pida transferencia.</li>
+</ol>
+
+<h2>Prerrequisitos</h2>
+
+<ul>
+    <li>Cuenta de AWS con Amazon Connect, Amazon Lex V2 y Amazon Bedrock habilitados</li>
+    <li>Cuenta de ElevenLabs con plan de pago (mínimo Starter, $5 USD/mes)</li>
+    <li>AWS CDK v2 instalado</li>
+    <li>Node.js 18+ y npm</li>
+    <li>Una Knowledge Base de Amazon Bedrock configurada con tus documentos</li>
+</ul>
+
+<h2>Paso 1: Desplegar la infraestructura con CDK</h2>
+
+<p>El stack de CDK despliega los recursos de seguridad necesarios: una KMS key de cliente y la configuración de Secrets Manager para almacenar la API key de ElevenLabs de forma segura.</p>
+
+<pre><code># Clonar el repositorio e instalar dependencias
+cd connect-elevenlabs
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus valores
+
+# Desplegar
+npx cdk bootstrap   # Solo la primera vez
+npx cdk deploy</code></pre>
+
+<div class="callout">
+    <strong>⚠️ Formato del secreto</strong>
+    Amazon Connect espera que el secreto en Secrets Manager tenga el formato JSON: <code>{"apiToken": "sk_tu_api_key"}</code>. Un formato incorrecto genera el error "The secret could not be deserialized".
+</div>
+
+<h3>Configuración del secreto</h3>
+
+<pre><code># Crear o actualizar el secreto con el formato correcto
+aws secretsmanager put-secret-value \
+  --secret-id elevenlabs-connect/api-key \
+  --secret-string '{"apiToken":"sk_TU_API_KEY_AQUI"}'
+
+# Re-cifrar con la KMS key de cliente (del output de CDK)
+aws secretsmanager update-secret \
+  --secret-id elevenlabs-connect/api-key \
+  --kms-key-id TU_KMS_KEY_ID</code></pre>
+
+<h3>Política de recursos del secreto</h3>
+
+<pre><code>aws secretsmanager put-resource-policy \
+  --secret-id elevenlabs-connect/api-key \
+  --resource-policy '{
+    "Version": "2012-10-17",
+    "Statement": [{
+      "Effect": "Allow",
+      "Principal": {"Service": "connect.amazonaws.com"},
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": "*",
+      "Condition": {
+        "ArnLike": {"aws:sourceArn": "TU_CONNECT_INSTANCE_ARN"},
+        "StringEquals": {"aws:sourceAccount": "TU_ACCOUNT_ID"}
+      }
+    }]
+  }'</code></pre>
+
+<h2>Paso 2: Crear el bot de Lex con Bedrock RAG</h2>
+
+<h3>Configuración del bot</h3>
+
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Nombre del bot</td><td><code>AsistenteRAG</code></td></tr>
+    <tr><td>Idioma</td><td>Spanish (Mexico) - es_MX</td></tr>
+    <tr><td>Generative AI</td><td>Habilitado con Knowledge Base de Bedrock</td></tr>
+    <tr><td>Modelo</td><td>Claude 3 Haiku (balance costo/calidad)</td></tr>
+</table>
+
+<h3>Intents necesarios</h3>
+
+<table>
+    <tr><th>Intent</th><th>Propósito</th><th>Utterances de ejemplo</th></tr>
+    <tr><td><code>FallbackIntent</code></td><td>Captura todo y responde con RAG</td><td>(automático — todo lo que no matchee otro intent)</td></tr>
+    <tr><td><code>EndConversation</code></td><td>Terminar la llamada</td><td>"adiós", "hasta luego", "eso es todo", "ya terminé"</td></tr>
+    <tr><td><code>TransferToAgent</code></td><td>Transferir a humano</td><td>"quiero hablar con una persona", "pásame con un agente"</td></tr>
+</table>
+
+<div class="callout callout-info">
+    <strong>💡 Tip: Prompt del sistema para RAG</strong>
+    Configura el prompt del sistema en Lex para que las respuestas sean concisas (2-3 oraciones máximo). En llamadas telefónicas, respuestas largas frustran al usuario.
+</div>
+
+<h2>Paso 3: Construir el flujo de contacto</h2>
+
+<p>El flujo de contacto en Amazon Connect orquesta toda la experiencia. El elemento clave es el <strong>loop conversacional</strong>: la rama FallbackIntent del bloque Get Customer Input se conecta de vuelta al mismo bloque.</p>
+
+<div class="diagram-container">
+    <pre class="mermaid">
+flowchart TD
+    Entry[Entry Point] --> SV[<strong>Bloque 1</strong><br/>Set Voice - ElevenLabs<br/>Model: eleven_flash_v2_5<br/>Voice: tu_voice_id<br/>Secret ARN: tu_secret_arn]
+    
+    SV -->|Success| PP1[<strong>Bloque 2</strong><br/>Play Prompt<br/>&quot;Bienvenido. Soy su asistente virtual.&quot;]
+    SV -->|Error| ERR[Respaldo: Polly → Transfer Queue]
+    
+    PP1 --> GCI[<strong>Bloque 3</strong><br/>Get Customer Input<br/>Bot: AsistenteRAG / live<br/>Timeout: 7s]
+    
+    GCI -->|FallbackIntent<br/>Lex responde con RAG| GCI
+    
+    GCI -->|EndConversation| PP2[<strong>Bloque 4</strong><br/>Play Prompt<br/>&quot;Gracias. ¡Hasta luego!&quot;]
+    PP2 --> DC[Disconnect]
+    
+    GCI -->|TransferToAgent| PP3[<strong>Bloque 5</strong><br/>Play Prompt<br/>&quot;Lo transfiero con un agente.&quot;]
+    PP3 --> TQ[Transfer to Queue]
+    
+    GCI -->|Timeout| PP4[<strong>Bloque 6</strong><br/>Play Prompt<br/>&quot;¿Sigue ahí?&quot;]
+    PP4 --> GCI
+    
+    GCI -->|Error| ERR
+
+    style Entry fill:#FF9900,color:#fff
+    style SV fill:#0073BB,color:#fff
+    style GCI fill:#0073BB,color:#fff
+    style DC fill:#D13212,color:#fff
+    style TQ fill:#1B660F,color:#fff
+    style ERR fill:#D13212,color:#fff
+    </pre>
+    <div class="caption">Figura 2. Flujo de contacto detallado — el loop se forma cuando FallbackIntent regresa al mismo bloque Get Customer Input</div>
+</div>
+
+<h3>Configuración del bloque Set Voice</h3>
+
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Voice provider</td><td><code>ElevenLabs</code></td></tr>
+    <tr><td>Model</td><td><code>eleven_flash_v2_5</code> (75ms latencia)</td></tr>
+    <tr><td>Voice</td><td>Tu Voice ID (ej: <code>21m00Tcm4TlvDq8ikWAM</code>)</td></tr>
+    <tr><td>Secrets Manager ARN</td><td>ARN del secreto con la API key</td></tr>
+    <tr><td>Language</td><td><code>es-MX</code></td></tr>
+</table>
+
+<h3>Configuración del bloque Get Customer Input</h3>
+
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Amazon Lex bot</td><td><code>AsistenteRAG</code></td></tr>
+    <tr><td>Alias</td><td><code>live</code></td></tr>
+    <tr><td>Timeout</td><td>7 segundos</td></tr>
+    <tr><td>Intents configurados</td><td>FallbackIntent, EndConversation, TransferToAgent</td></tr>
+</table>
+
+<h2>Paso 4: Asignar número telefónico y probar</h2>
+
+<ol>
+    <li>En Connect admin → <strong>Channels</strong> → <strong>Phone numbers</strong></li>
+    <li>Selecciona tu número → asigna el flujo <code>ElevenLabs Lex RAG Flow</code></li>
+    <li>Llama al número y verifica:
+        <ul>
+            <li>La bienvenida se escucha con voz ElevenLabs</li>
+            <li>Las preguntas se responden correctamente con RAG</li>
+            <li>El loop conversacional funciona (puedes hacer múltiples preguntas)</li>
+            <li>"Adiós" termina la llamada</li>
+            <li>"Quiero hablar con una persona" transfiere a la cola</li>
+        </ul>
+    </li>
+</ol>
+
+<h2>Solución de problemas</h2>
+
+<table>
+    <tr><th>Error</th><th>Causa</th><th>Solución</th></tr>
+    <tr><td><code>InvalidApiToken</code></td><td>Formato del secreto incorrecto</td><td>Usar <code>{"apiToken": "sk_xxx"}</code></td></tr>
+    <tr><td><code>NotAuthorized</code></td><td>Plan gratuito de ElevenLabs</td><td>Actualizar a plan de pago</td></tr>
+    <tr><td>No se escucha voz</td><td>Voice ID o Model ID incorrecto</td><td>Verificar valores en Set Voice</td></tr>
+    <tr><td>Lex no responde</td><td>Bot no construido/publicado</td><td>Build + crear versión + alias</td></tr>
+    <tr><td>Respuestas en inglés</td><td>Idioma mal configurado</td><td>Configurar <code>es-MX</code> en Set Voice y Lex</td></tr>
+    <tr><td>Loop no funciona</td><td>FallbackIntent no conectado de vuelta</td><td>Conectar rama FallbackIntent al mismo bloque</td></tr>
+</table>
+
+<h2>Estimación de costos</h2>
+
+<p>Para un volumen de 10,000 llamadas/mes con duración promedio de 2 minutos:</p>
+
+<table>
+    <tr><th>Servicio</th><th>Uso</th><th>Costo estimado (USD/mes)</th></tr>
+    <tr><td>Amazon Connect</td><td>20,000 minutos</td><td>~$160</td></tr>
+    <tr><td>ElevenLabs TTS</td><td>~10M caracteres</td><td>~$30</td></tr>
+    <tr><td>Amazon Lex V2</td><td>10,000 solicitudes de voz</td><td>~$40</td></tr>
+    <tr><td>Amazon Bedrock (Claude Haiku)</td><td>~50K tokens/llamada</td><td>~$5</td></tr>
+    <tr><td>Secrets Manager + KMS</td><td>1 secreto + llamadas API</td><td>~$0.50</td></tr>
+    <tr><td><strong>Total</strong></td><td></td><td><strong>~$235</strong></td></tr>
+</table>
+
+<h2>Conclusión</h2>
+
+<p>Esta integración demuestra cómo combinar lo mejor de AWS y ElevenLabs para crear experiencias de contact center que son tanto inteligentes como naturales. Amazon Connect maneja la telefonía, ElevenLabs proporciona voces de calidad humana, y Lex con Bedrock RAG entrega respuestas precisas basadas en tu base de conocimiento.</p>
+
+<p>El patrón de loop conversacional — donde la rama FallbackIntent regresa al mismo bloque Get Customer Input — es simple pero poderoso. Permite conversaciones multi-turno sin necesidad de Lambda functions intermedias, reduciendo latencia y complejidad.</p>
+
+<p>Para escenarios que requieren mayor control sobre la lógica conversacional, herramientas personalizadas, o la inteligencia del agente de ElevenLabs, consulta el <strong>Escenario 2</strong> que utiliza un agente conversacional de ElevenLabs con un puente Lambda WebSocket.</p>
+
+<hr style="margin: 48px 0; border: none; border-top: 1px solid var(--border-color);">
+
+<h2>Sobre el autor</h2>
+<p><strong>David L.</strong> es Solutions Architect especializado en integraciones de IA conversacional y contact centers en la nube.</p>
+
+<script>
+    mermaid.initialize({ 
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: {
+            primaryColor: '#0073BB',
+            primaryTextColor: '#fff',
+            primaryBorderColor: '#0073BB',
+            lineColor: '#545B64',
+            secondaryColor: '#FF9900',
+            tertiaryColor: '#F2F3F3',
+            fontFamily: '"Amazon Ember", "Helvetica Neue", Arial, sans-serif'
+        }
+    });
+</script>
+
+</body>
+</html>

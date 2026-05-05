@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integración de Amazon Connect con Agente Conversacional ElevenLabs</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --aws-orange: #FF9900;
+            --aws-dark: #232F3E;
+            --aws-light-gray: #F2F3F3;
+            --aws-blue: #0073BB;
+            --text-primary: #16191F;
+            --text-secondary: #545B64;
+            --border-color: #D5DBDB;
+            --code-bg: #1B2631;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Amazon Ember", "Helvetica Neue", Roboto, Arial, sans-serif;
+            line-height: 1.8; color: var(--text-primary);
+            max-width: 900px; margin: 0 auto; padding: 40px 20px; background: #fff;
+        }
+        .blog-meta { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
+        .blog-meta .category { color: var(--aws-blue); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        h1 { font-size: 32px; font-weight: 700; margin-bottom: 16px; line-height: 1.3; }
+        .author-info { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color); }
+        .author-info .author-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--aws-dark); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+        .author-info .author-details { font-size: 14px; color: var(--text-secondary); }
+        .author-info .author-name { font-weight: 700; color: var(--text-primary); }
+        h2 { font-size: 24px; font-weight: 700; margin-top: 48px; margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+        h3 { font-size: 20px; font-weight: 700; margin-top: 32px; margin-bottom: 12px; }
+        h4 { font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 8px; }
+        p { margin-bottom: 16px; font-size: 16px; }
+        ul, ol { margin-bottom: 16px; padding-left: 24px; }
+        li { margin-bottom: 8px; font-size: 16px; }
+        code { background: var(--aws-light-gray); padding: 2px 6px; border-radius: 3px; font-family: "Source Code Pro", Monaco, Consolas, monospace; font-size: 14px; }
+        pre { background: var(--code-bg); color: #F8F8F2; padding: 20px; border-radius: 4px; overflow-x: auto; margin-bottom: 24px; font-family: "Source Code Pro", Monaco, Consolas, monospace; font-size: 14px; line-height: 1.6; }
+        pre code { background: none; padding: 0; color: inherit; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px; }
+        th { background: var(--aws-dark); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+        td { padding: 10px 16px; border-bottom: 1px solid var(--border-color); }
+        tr:nth-child(even) { background: var(--aws-light-gray); }
+        .callout { background: #FFF8E1; border-left: 4px solid var(--aws-orange); padding: 16px 20px; margin-bottom: 24px; border-radius: 0 4px 4px 0; }
+        .callout-info { background: #E3F2FD; border-left-color: var(--aws-blue); }
+        .callout strong { display: block; margin-bottom: 4px; }
+        .diagram-container { background: var(--aws-light-gray); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; margin: 24px 0; text-align: center; }
+        .diagram-container .caption { font-size: 13px; color: var(--text-secondary); margin-top: 12px; font-style: italic; }
+        .services-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 24px 0; }
+        .service-card { background: var(--aws-light-gray); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; text-align: center; }
+        .service-card .service-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .service-card .service-role { font-size: 12px; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+
+<div class="blog-meta">
+    <span class="category">Machine Learning</span> | <span class="category">Contact Center</span> | <span class="category">Conversational AI</span>
+</div>
+
+<h1>Integración de Amazon Connect con Agente Conversacional ElevenLabs mediante Lambda WebSocket Bridge</h1>
+
+<div class="author-info">
+    <div class="author-avatar">DL</div>
+    <div class="author-details">
+        <div class="author-name">David L.</div>
+        <div>Publicado el 5 de mayo de 2026 | Tiempo de lectura: 20 minutos</div>
+    </div>
+</div>
+
+<p>En este post presentamos una arquitectura avanzada que conecta <strong>Amazon Connect</strong> con un <strong>agente conversacional de ElevenLabs</strong> a través de una función Lambda que actúa como puente WebSocket. A diferencia del enfoque con Lex + Bedrock RAG, aquí el agente de ElevenLabs maneja toda la lógica conversacional, incluyendo base de conocimiento, herramientas (webhooks) y manejo de contexto multi-turno.</p>
+
+<p>Esta solución es ideal cuando necesitas conversaciones complejas con acciones en tiempo real (consultar pedidos, crear tickets, agendar citas) y quieres aprovechar la plataforma de agentes de ElevenLabs junto con su voz de alta calidad.</p>
+
+<h2>Arquitectura de la solución</h2>
+
+<div class="services-list">
+    <div class="service-card">
+        <div class="service-name">Amazon Connect</div>
+        <div class="service-role">Orquestación de llamadas</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">AWS Lambda</div>
+        <div class="service-role">Puente WebSocket</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">ElevenLabs Agent</div>
+        <div class="service-role">IA Conversacional</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">ElevenLabs TTS</div>
+        <div class="service-role">Síntesis de voz</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">Amazon Lex V2</div>
+        <div class="service-role">Passthrough STT</div>
+    </div>
+    <div class="service-card">
+        <div class="service-name">Secrets Manager + KMS</div>
+        <div class="service-role">Seguridad de credenciales</div>
+    </div>
+</div>
+<div class="diagram-container">
+    <pre class="mermaid">
+flowchart TD
+    A[Llamada Entrante] --> B[Amazon Connect]
+    B --> C[Set Voice - ElevenLabs]
+    C --> D[Lambda: action=greet]
+    D --> E[Play Prompt - Saludo]
+    E --> F[Get Customer Input - Lex Passthrough]
+    F --> G[Set Contact Attributes]
+    G --> H[Lambda: action=process_input]
+    
+    H --> I{endConversation?}
+    I -->|true| J[Play Prompt - Despedida]
+    J --> K[Disconnect]
+    
+    I -->|false| L{transferToAgent?}
+    L -->|true| M[Play Prompt - Transferencia]
+    M --> N[Transfer to Queue]
+    
+    L -->|false| O[Play Prompt - Respuesta]
+    O --> F
+
+    D -.->|WebSocket| P[ElevenLabs Agent]
+    H -.->|WebSocket| P
+    P -.-> Q[Knowledge Base]
+    P -.-> R[Tools / Webhooks]
+    
+    C -.->|API Key| S[(Secrets Manager)]
+
+    style A fill:#FF9900,color:#fff
+    style C fill:#0073BB,color:#fff
+    style D fill:#7B68EE,color:#fff
+    style H fill:#7B68EE,color:#fff
+    style P fill:#7B68EE,color:#fff
+    style K fill:#D13212,color:#fff
+    style N fill:#1B660F,color:#fff
+    </pre>
+    <div class="caption">Figura 1. Arquitectura completa: Amazon Connect + Lambda WebSocket Bridge + ElevenLabs Conversational AI Agent</div>
+</div>
+
+<h2>Como funciona el puente WebSocket</h2>
+
+<p>La funcion Lambda actua como intermediario entre Amazon Connect y el agente de ElevenLabs:</p>
+
+<ol>
+    <li>Connect invoca la Lambda con la transcripcion del usuario (obtenida via Lex passthrough).</li>
+    <li>La Lambda obtiene la API key de Secrets Manager.</li>
+    <li>Solicita una <strong>signed URL</strong> al API de ElevenLabs.</li>
+    <li>Abre una conexion WebSocket al agente.</li>
+    <li>Envia el texto del usuario y espera la respuesta del agente.</li>
+    <li>Retorna la respuesta a Connect, que la reproduce con voz ElevenLabs.</li>
+</ol>
+
+<div class="diagram-container">
+    <pre class="mermaid">
+sequenceDiagram
+    participant Caller as Llamante
+    participant Connect as Amazon Connect
+    participant Lex as Lex Passthrough
+    participant Lambda as Lambda Bridge
+    participant SM as Secrets Manager
+    participant EL as ElevenLabs Agent
+
+    Caller->>Connect: Habla
+    Connect->>Lex: Audio del usuario
+    Lex-->>Connect: InputTranscript
+    Connect->>Lambda: action=process_input, userInput=texto
+    Lambda->>SM: GetSecretValue
+    SM-->>Lambda: apiToken
+    Lambda->>EL: GET /get_signed_url
+    EL-->>Lambda: wss://signed_url
+    Lambda->>EL: WebSocket: user_message
+    EL-->>Lambda: agent_response
+    Lambda-->>Connect: {message: respuesta}
+    Connect->>Caller: Reproduce con voz ElevenLabs
+    </pre>
+    <div class="caption">Figura 2. Diagrama de secuencia del flujo de comunicacion por turno</div>
+</div>
+
+<h2>Paso 1: Configurar el agente en ElevenLabs</h2>
+
+<h3>Crear el agente</h3>
+
+<ol>
+    <li>Ve a <code>https://elevenlabs.io/app/conversational-ai</code></li>
+    <li>Haz clic en <strong>Create Agent</strong></li>
+    <li>Configura nombre, voz e idioma (Spanish)</li>
+</ol>
+
+<h3>System Prompt recomendado</h3>
+
+<pre><code>Eres un asistente virtual profesional de [Empresa].
+Tu nombre es [Nombre].
+
+Rol:
+- Responder preguntas sobre productos y servicios
+- Resolver problemas comunes
+- Recopilar informacion para tickets de soporte
+- Transferir a un agente humano cuando no puedas resolver
+
+Lineamientos:
+- Responde siempre en espanol de Mexico
+- Maximo 2-3 oraciones por respuesta (es una llamada telefonica)
+- Si no sabes algo, dilo honestamente
+- Usa transfer_to_agent cuando el usuario pida un humano
+- Usa end_conversation cuando el usuario se despida</code></pre>
+
+<h3>Herramientas del agente</h3>
+
+<table>
+    <tr><th>Herramienta</th><th>Proposito</th><th>Parametros</th></tr>
+    <tr><td><code>end_conversation</code></td><td>Terminar la llamada</td><td>Ninguno</td></tr>
+    <tr><td><code>transfer_to_agent</code></td><td>Transferir a humano</td><td>Ninguno</td></tr>
+    <tr><td><code>lookup_order</code></td><td>Consultar pedido (opcional)</td><td><code>order_number: string</code></td></tr>
+</table>
+
+<h3>Ajustes de conversacion</h3>
+
+<table>
+    <tr><th>Ajuste</th><th>Valor</th><th>Razon</th></tr>
+    <tr><td>Turn timeout</td><td>7 segundos</td><td>Tiempo para pensar</td></tr>
+    <tr><td>Silence end call timeout</td><td>30 segundos</td><td>Evita colgar prematuramente</td></tr>
+    <tr><td>Max duration</td><td>600 segundos</td><td>Control de costos</td></tr>
+    <tr><td>Interruption sensitivity</td><td>Medium</td><td>Interrupciones naturales</td></tr>
+</table>
+
+<h2>Paso 2: Desplegar infraestructura con CDK</h2>
+
+<pre><code># Configurar .env
+ELEVENLABS_API_KEY=sk_tu_api_key
+ELEVENLABS_AGENT_ID=tu_agent_id
+ELEVENLABS_SECRET_NAME=elevenlabs-connect/api-key
+CONNECT_INSTANCE_ARN=arn:aws:connect:us-east-1:CUENTA:instance/ID
+DEPLOY_AGENT_BRIDGE=true
+
+# Desplegar
+npx cdk deploy</code></pre>
+
+<p>El stack despliega:</p>
+<ul>
+    <li><strong>KMS Key</strong> con politica para Amazon Connect</li>
+    <li><strong>Lambda Function</strong> (Node.js 22, ARM64) como puente WebSocket</li>
+    <li><strong>Lex Bot</strong> passthrough para capturar voz libre</li>
+</ul>
+
+<h3>Post-despliegue: asociar recursos con Connect</h3>
+
+<ol>
+    <li>Consola de Amazon Connect &rarr; tu instancia &rarr; <strong>AWS Lambda</strong> &rarr; agregar la funcion bridge</li>
+    <li>Misma pagina &rarr; <strong>Lex bots</strong> &rarr; agregar <code>ElevenLabsSpeechPassthrough</code> alias <code>live</code></li>
+</ol>
+
+<h2>Paso 3: Construir el flujo de contacto</h2>
+
+<div class="diagram-container">
+    <pre class="mermaid">
+flowchart TD
+    Entry[Entry Point] --> B1["<b>Bloque 1</b><br/>Set Voice (ElevenLabs)<br/>Model: eleven_flash_v2_5"]
+    B1 -->|Error| ERR[Respaldo Polly + Transfer]
+    B1 -->|Success| B2["<b>Bloque 2</b><br/>Invoke Lambda<br/>action = greet"]
+    B2 -->|Error| ERR
+    B2 -->|Success| B3["<b>Bloque 3</b><br/>Play Prompt<br/>$.External.message"]
+    B3 --> B4["<b>Bloque 4</b><br/>Get Customer Input<br/>Lex: Passthrough / live"]
+    B4 -->|FallbackIntent| B5["<b>Bloque 5</b><br/>Set Contact Attributes<br/>userInput = InputTranscript"]
+    B4 -->|Timeout| B4
+    B4 -->|Error| ERR
+    B5 --> B6["<b>Bloque 6</b><br/>Invoke Lambda<br/>action = process_input"]
+    B6 -->|Error| ERR
+    B6 -->|Success| B7{"<b>Bloque 7</b><br/>Check: endConversation"}
+    B7 -->|true| B8["<b>Bloque 8</b><br/>Play Prompt + Disconnect"]
+    B7 -->|no match| B9{"<b>Bloque 9</b><br/>Check: transferToAgent"}
+    B9 -->|true| B10["<b>Bloque 10</b><br/>Play Prompt + Transfer Queue"]
+    B9 -->|no match| B11["<b>Bloque 11</b><br/>Play Prompt<br/>$.External.message"]
+    B11 --> B4
+
+    style Entry fill:#FF9900,color:#fff
+    style B1 fill:#0073BB,color:#fff
+    style B2 fill:#7B68EE,color:#fff
+    style B6 fill:#7B68EE,color:#fff
+    style B8 fill:#D13212,color:#fff
+    style B10 fill:#1B660F,color:#fff
+    style ERR fill:#D13212,color:#fff
+    </pre>
+    <div class="caption">Figura 3. Flujo de contacto completo con todos los bloques numerados</div>
+</div>
+
+<h3>Configuracion bloque por bloque</h3>
+
+<h4>Bloque 1: Set Voice</h4>
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Voice provider</td><td><code>ElevenLabs</code></td></tr>
+    <tr><td>Model</td><td><code>eleven_flash_v2_5</code></td></tr>
+    <tr><td>Voice</td><td>Tu Voice ID</td></tr>
+    <tr><td>Secrets Manager ARN</td><td>ARN del secreto</td></tr>
+    <tr><td>Language</td><td><code>es-MX</code></td></tr>
+</table>
+
+<h4>Bloque 2: Invoke Lambda (Saludo)</h4>
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Function</td><td><code>ConnectElevenLabsStack-WebSocketBridge*</code></td></tr>
+    <tr><td>Parameter: action</td><td>Set manually: <code>greet</code></td></tr>
+</table>
+
+<h4>Bloque 3: Play Prompt (Saludo)</h4>
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Set</td><td>Dynamically</td></tr>
+    <tr><td>Namespace</td><td>External</td></tr>
+    <tr><td>Attribute</td><td><code>message</code></td></tr>
+    <tr><td>Interpret as</td><td>Text</td></tr>
+</table>
+
+<h4>Bloque 4: Get Customer Input</h4>
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Amazon Lex bot</td><td><code>ElevenLabsSpeechPassthrough</code></td></tr>
+    <tr><td>Alias</td><td><code>live</code></td></tr>
+    <tr><td>Timeout</td><td>7 segundos</td></tr>
+</table>
+
+<h4>Bloque 5: Set Contact Attributes</h4>
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Destination</td><td>User defined</td></tr>
+    <tr><td>Key</td><td><code>userInput</code></td></tr>
+    <tr><td>Namespace</td><td>Lex</td></tr>
+    <tr><td>Attribute</td><td><code>FallbackIntent.InputTranscript</code></td></tr>
+</table>
+
+<h4>Bloque 6: Invoke Lambda (Procesar)</h4>
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Function</td><td><code>ConnectElevenLabsStack-WebSocketBridge*</code></td></tr>
+    <tr><td>Parameter: action</td><td>Set manually: <code>process_input</code></td></tr>
+    <tr><td>Parameter: userInput</td><td>Set dynamically: User Defined / <code>userInput</code></td></tr>
+</table>
+
+<h4>Bloques 7 y 9: Check Contact Attributes</h4>
+<table>
+    <tr><th>Bloque</th><th>Namespace</th><th>Attribute</th><th>Condition</th></tr>
+    <tr><td>Bloque 7</td><td>External</td><td><code>endConversation</code></td><td>Equals <code>true</code></td></tr>
+    <tr><td>Bloque 9</td><td>External</td><td><code>transferToAgent</code></td><td>Equals <code>true</code></td></tr>
+</table>
+
+<h4>Bloques 8, 10, 11: Play Prompt (dinamico)</h4>
+<p>Todos usan la misma configuracion:</p>
+<table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Set</td><td>Dynamically</td></tr>
+    <tr><td>Namespace</td><td>External</td></tr>
+    <tr><td>Attribute</td><td><code>message</code></td></tr>
+    <tr><td>Interpret as</td><td>Text</td></tr>
+</table>
+
+<div class="callout">
+    <strong>Importante: El loop</strong>
+    El Bloque 11 (Play Prompt con la respuesta del agente) se conecta DE VUELTA al Bloque 4 (Get Customer Input). Esto crea el ciclo conversacional.
+</div>
+
+<h2>Paso 4: Probar la integracion</h2>
+
+<ol>
+    <li>Asigna el flujo a un numero telefonico en Connect</li>
+    <li>Llama al numero</li>
+    <li>Verifica el saludo del agente</li>
+    <li>Haz preguntas y verifica respuestas</li>
+    <li>Di "quiero hablar con una persona" &rarr; debe transferir</li>
+    <li>Di "adios" &rarr; debe colgar</li>
+</ol>
+
+<h3>Verificar logs</h3>
+<ul>
+    <li><strong>Lambda</strong>: CloudWatch &rarr; <code>/aws/lambda/ConnectElevenLabsStack-WebSocketBridge*</code></li>
+    <li><strong>Connect</strong>: Analytics &rarr; Contact search &rarr; Contact trace records</li>
+</ul>
+
+<h2>Comparacion: Escenario 1 vs Escenario 2</h2>
+
+<table>
+    <tr><th>Aspecto</th><th>Escenario 1 (Lex + Bedrock RAG)</th><th>Escenario 2 (Agente ElevenLabs)</th></tr>
+    <tr><td>Inteligencia</td><td>Amazon Bedrock</td><td>ElevenLabs Conversational AI</td></tr>
+    <tr><td>Knowledge Base</td><td>Bedrock Knowledge Base</td><td>ElevenLabs Knowledge Base</td></tr>
+    <tr><td>Herramientas</td><td>Lambda en Lex</td><td>Webhooks en ElevenLabs</td></tr>
+    <tr><td>Latencia/turno</td><td>Baja (nativo)</td><td>Media (Lambda + WebSocket)</td></tr>
+    <tr><td>Complejidad</td><td>Simple (loop directo)</td><td>Media (Lambda + branching)</td></tr>
+    <tr><td>Mejor para</td><td>FAQ, RAG simple</td><td>Conversaciones complejas con acciones</td></tr>
+</table>
+
+<h2>Solucion de problemas</h2>
+
+<table>
+    <tr><th>Error</th><th>Causa</th><th>Solucion</th></tr>
+    <tr><td><code>InvalidApiToken</code></td><td>Formato del secreto</td><td>Usar <code>{"apiToken": "sk_xxx"}</code></td></tr>
+    <tr><td><code>NotAuthorized</code></td><td>Plan gratuito ElevenLabs</td><td>Actualizar a plan de pago</td></tr>
+    <tr><td>Lambda timeout</td><td>Agente tarda mucho</td><td>Simplificar prompt o aumentar timeout</td></tr>
+    <tr><td>Agent not found</td><td>Agent ID incorrecto</td><td>Verificar ELEVENLABS_AGENT_ID</td></tr>
+    <tr><td>Lambda no aparece</td><td>No asociada a Connect</td><td>Asociar en consola de Connect</td></tr>
+    <tr><td>Loop no funciona</td><td>Bloque 11 no conectado</td><td>Conectar de vuelta al Bloque 4</td></tr>
+</table>
+
+<h2>Estimacion de costos</h2>
+
+<p>Para 10,000 llamadas/mes, 2 minutos promedio:</p>
+
+<table>
+    <tr><th>Servicio</th><th>Uso</th><th>Costo (USD/mes)</th></tr>
+    <tr><td>Amazon Connect</td><td>20,000 min</td><td>~$160</td></tr>
+    <tr><td>ElevenLabs TTS</td><td>~10M caracteres</td><td>~$30</td></tr>
+    <tr><td>ElevenLabs Agent</td><td>10K conversaciones</td><td>Incluido en plan</td></tr>
+    <tr><td>Lambda</td><td>50K invocaciones, 5s avg</td><td>~$1</td></tr>
+    <tr><td>Amazon Lex</td><td>10K solicitudes</td><td>~$40</td></tr>
+    <tr><td>Secrets Manager + KMS</td><td>1 secreto</td><td>~$0.50</td></tr>
+    <tr><td><strong>Total</strong></td><td></td><td><strong>~$232</strong></td></tr>
+</table>
+
+<h2>Conclusion</h2>
+
+<p>Este escenario demuestra como aprovechar la plataforma de agentes conversacionales de ElevenLabs dentro de un contact center empresarial basado en Amazon Connect. La funcion Lambda como puente WebSocket permite mantener la arquitectura serverless mientras se accede a las capacidades avanzadas del agente: base de conocimiento, herramientas con webhooks, y manejo de contexto conversacional.</p>
+
+<p>Para casos de uso mas simples donde solo necesitas RAG sobre una base de conocimiento, el <strong>Escenario 1</strong> con Lex + Bedrock RAG ofrece menor latencia y complejidad. Elige el escenario que mejor se adapte a tus necesidades de negocio.</p>
+
+<hr style="margin: 48px 0; border: none; border-top: 1px solid var(--border-color);">
+
+<h2>Sobre el autor</h2>
+<p><strong>David L.</strong> es Solutions Architect especializado en integraciones de IA conversacional y contact centers en la nube.</p>
+
+<script>
+    mermaid.initialize({ 
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: {
+            primaryColor: '#0073BB',
+            primaryTextColor: '#fff',
+            primaryBorderColor: '#0073BB',
+            lineColor: '#545B64',
+            secondaryColor: '#FF9900',
+            tertiaryColor: '#F2F3F3',
+            fontFamily: 'Amazon Ember, Helvetica Neue, Arial, sans-serif'
+        }
+    });
+</script>
+
+</body>
+</html>

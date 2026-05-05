@@ -1,0 +1,15 @@
+node_modules/
+dist/
+cdk.out/
+.env
+*.js
+*.d.ts
+!cdk.json
+!jest.config.js
+.DS_Store
+
+docs/ARCHITECTURE.md
+docs/CONNECT_FLOW_SETUP.md
+docs/ELEVENLABS_SETUP.md
+docs/GUIA_ESCENARIO_1_LEX_BEDROCK_RAG.md
+docs/GUIA_ESCENARIO_2_AGENTE_ELEVENLABS.md

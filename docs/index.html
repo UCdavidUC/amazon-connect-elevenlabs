@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Connect + ElevenLabs — Guías de Integración</title>
+    <style>
+        :root {
+            --aws-orange: #FF9900;
+            --aws-dark: #232F3E;
+            --aws-light-gray: #F2F3F3;
+            --aws-blue: #0073BB;
+            --text-primary: #16191F;
+            --text-secondary: #545B64;
+            --border-color: #D5DBDB;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Amazon Ember", "Helvetica Neue", Roboto, Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--aws-light-gray);
+            min-height: 100vh;
+        }
+        header {
+            background: var(--aws-dark);
+            padding: 24px 0;
+            margin-bottom: 48px;
+        }
+        header .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header h1 {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        header p {
+            color: #AAB7B8;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .intro {
+            margin-bottom: 40px;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+        @media (max-width: 640px) {
+            .cards { grid-template-columns: 1fr; }
+        }
+        .card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 32px;
+            transition: box-shadow 0.2s, transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .card .badge {
+            display: inline-block;
+            background: var(--aws-orange);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            align-self: flex-start;
+        }
+        .card .badge-purple {
+            background: #7B68EE;
+        }
+        .card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            border: none;
+            padding: 0;
+        }
+        .card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            flex-grow: 1;
+            margin-bottom: 20px;
+        }
+        .card .services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .card .services span {
+            background: var(--aws-light-gray);
+            border: 1px solid var(--border-color);
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            color: var(--text-secondary);
+        }
+        .card .cta {
+            color: var(--aws-blue);
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .card .cta::after {
+            content: " →";
+        }
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-top: 1px solid var(--border-color);
+        }
+        footer a {
+            color: var(--aws-blue);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>Amazon Connect + ElevenLabs</h1>
+        <p>Guías de integración para contact centers con voz IA de alta calidad</p>
+    </div>
+</header>
+
+<div class="container">
+    <p class="intro">
+        Dos enfoques para integrar voces de ElevenLabs en Amazon Connect. Elige según la complejidad conversacional que necesitas: RAG simple con Lex o un agente conversacional completo con herramientas y base de conocimiento.
+    </p>
+
+    <div class="cards">
+        <a href="blog_escenario_1_lex_bedrock_rag.html" class="card">
+            <span class="badge">Escenario 1</span>
+            <h2>ElevenLabs TTS + Lex con Bedrock RAG</h2>
+            <p>
+                Reemplaza Amazon Polly con ElevenLabs y usa Lex con Bedrock Knowledge Base para responder preguntas. El flujo es simple: un loop directo donde Lex maneja toda la conversación de forma nativa. Ideal para FAQ y soporte de primer nivel.
+            </p>
+            <div class="services">
+                <span>Amazon Connect</span>
+                <span>ElevenLabs TTS</span>
+                <span>Amazon Lex V2</span>
+                <span>Amazon Bedrock</span>
+            </div>
+            <span class="cta">Leer guía completa</span>
+        </a>
+
+        <a href="blog_escenario_2_agente_elevenlabs.html" class="card">
+            <span class="badge badge-purple">Escenario 2</span>
+            <h2>ElevenLabs TTS + Agente Conversacional ElevenLabs</h2>
+            <p>
+                Un agente de ElevenLabs maneja la lógica conversacional completa a través de un puente Lambda WebSocket. Soporta herramientas (consultar pedidos, crear tickets), base de conocimiento propia y manejo de contexto avanzado. Para conversaciones complejas con acciones.
+            </p>
+            <div class="services">
+                <span>Amazon Connect</span>
+                <span>ElevenLabs Agent</span>
+                <span>AWS Lambda</span>
+                <span>ElevenLabs TTS</span>
+            </div>
+            <span class="cta">Leer guía completa</span>
+        </a>
+    </div>
+</div>
+
+<footer>
+    <p>Código fuente disponible en <a href="https://github.com">GitHub</a> · Desplegado con AWS CDK · Documentación en español de México</p>
+</footer>
+
+</body>
+</html>
