@@ -327,12 +327,20 @@ flowchart TD
     L -.->|"Cifrado"| M["KMS Key"]
     E -.->|"NLU + RAG"| N["Amazon Bedrock - Knowledge Base"]
 
-    style A fill:#FF9900,color:#fff
-    style C fill:#232F3E,color:#fff
-    style E fill:#232F3E,color:#fff
-    style N fill:#232F3E,color:#fff
+    style A fill:#FDC500,color:#000
+    style B fill:#A166FF,color:#fff
+    style C fill:#A166FF,color:#fff
+    style D fill:#A166FF,color:#fff
+    style E fill:#A166FF,color:#fff
+    style F fill:#A166FF,color:#fff
+    style G fill:#A166FF,color:#fff
+    style H fill:#A166FF,color:#fff
+    style I fill:#A166FF,color:#fff
+    style N fill:#A166FF,color:#fff
     style J fill:#D13212,color:#fff
-    style K fill:#1B660F,color:#fff
+    style K fill:#67E6BE,color:#000
+    style L fill:#FF6138,color:#fff
+    style M fill:#FF6138,color:#fff
     </pre>
     <div class="caption">Figura 1. Arquitectura del flujo conversacional con ElevenLabs TTS y Lex + Bedrock RAG</div>
 </div>
@@ -463,9 +471,13 @@ flowchart TD
     
     GCI -->|"Error"| ERR
 
-    style Entry fill:#FF9900,color:#fff
-    style SV fill:#232F3E,color:#fff
-    style GCI fill:#232F3E,color:#fff
+    style Entry fill:#FDC500,color:#000
+    style SV fill:#A166FF,color:#fff
+    style GCI fill:#A166FF,color:#fff
+    style PP1 fill:#A166FF,color:#fff
+    style PP2 fill:#A166FF,color:#fff
+    style PP3 fill:#A166FF,color:#fff
+    style PP4 fill:#A166FF,color:#fff
     style DC fill:#D13212,color:#fff
     style TQ fill:#1B660F,color:#fff
     style ERR fill:#D13212,color:#fff
@@ -554,17 +566,15 @@ flowchart TD
         startOnLoad: true,
         theme: 'base',
         themeVariables: {
-            background: '#FFFFFF',
+            background: '#000000',
             primaryColor: '#232F3E',
             primaryTextColor: '#FFFFFF',
             primaryBorderColor: '#232F3E',
             lineColor: '#545B64',
-            secondaryColor: '#FF9900',
-            tertiaryColor: '#FFFFFF',
-            mainBkg: '#FFFFFF',
+            mainBkg: '#000000',
             nodeBorder: '#232F3E',
-            clusterBkg: '#FFFFFF',
-            fontSize: '16px',
+            clusterBkg: '#000000',
+            fontSize: '24px',
             fontFamily: '"Amazon Ember", "Helvetica Neue", Arial, sans-serif'
         }
     });
