@@ -259,23 +259,24 @@
     <span class="category">Machine Learning</span> | <span class="category">Contact Center</span>
 </div>
 
-<h1>Integración de Amazon Connect con ElevenLabs TTS y Amazon Lex con Bedrock RAG para Contact Centers Inteligentes</h1>
+<h1>Integración de Amazon Connect con ElevenLabs TTS y Amazon Lex con Bedrock RAG para Centro de Contacto Inteligentes</h1>
 
 <div class="author-info">
     <div class="author-avatar">DL</div>
     <div class="author-details">
-        <div class="author-name">David L.</div>
+        <div class="author-name">David S.</div>
         <div>Publicado el 5 de mayo de 2026 | Tiempo de lectura: 15 minutos</div>
     </div>
 </div>
 
-<p>Los contact centers modernos enfrentan un desafío constante: ofrecer experiencias de voz naturales y personalizadas mientras mantienen la eficiencia operativa. En este post, mostramos cómo integrar <strong>Amazon Connect</strong> con <strong>ElevenLabs</strong> para text-to-speech de alta calidad y <strong>Amazon Lex con Bedrock RAG</strong> para respuestas inteligentes basadas en una base de conocimiento.</p>
+<p>Los Centros de Contacto modernos enfrentan un desafío constante: ofrecer experiencias de voz naturales y personalizadas mientras mantienen la eficiencia operativa. 
+    En este post, mostramos cómo integrar <strong>Amazon Connect</strong> con <strong>ElevenLabs</strong> para text-to-speech con personalización de voz y <strong>Amazon Lex con Bedrock RAG</strong> para respuestas inteligentes basadas en una base de conocimiento.</p>
 
-<p>Esta solución permite que un asistente virtual atienda llamadas con una voz indistinguible de la humana, responda preguntas usando Retrieval-Augmented Generation (RAG) con Amazon Bedrock, y escale a agentes humanos cuando sea necesario.</p>
+<p>Esta solución permite que un asistente virtual atienda llamadas con una voz similar a la humana, responda preguntas usando Retrieval-Augmented Generation (RAG) con Amazon Bedrock, y escale a agentes humanos cuando sea necesario.</p>
 
 <h2>Arquitectura de la solución</h2>
 
-<p>La arquitectura combina cuatro servicios principales de AWS con ElevenLabs como proveedor de voz externo:</p>
+<p>La arquitectura combina cuatro servicios de AWS con ElevenLabs como proveedor de voz externo:</p>
 
 <div class="services-list">
     <div class="service-card">
@@ -352,10 +353,10 @@ flowchart TD
 
 <ul>
     <li>Cuenta de AWS con Amazon Connect, Amazon Lex V2 y Amazon Bedrock habilitados</li>
-    <li>Cuenta de ElevenLabs con plan de pago (mínimo Starter, $5 USD/mes)</li>
+    <li>Cuenta de ElevenLabs con subscripción (mínimo Starter, $5 USD/mes)</li>
     <li>AWS CDK v2 instalado</li>
     <li>Node.js 18+ y npm</li>
-    <li>Una Knowledge Base de Amazon Bedrock configurada con tus documentos</li>
+    <li>Una base de conocimientos en Bedrock Knowledge Base configurada con tus documentos</li>
 </ul>
 
 <h2>Paso 1: Desplegar la infraestructura con CDK</h2>
@@ -375,7 +376,7 @@ npx cdk bootstrap   # Solo la primera vez
 npx cdk deploy</code></pre>
 
 <div class="callout">
-    <strong>⚠️ Formato del secreto</strong>
+    <strong>Nota: Formato del secreto</strong>
     Amazon Connect espera que el secreto en Secrets Manager tenga el formato JSON: <code>{"apiToken": "sk_tu_api_key"}</code>. Un formato incorrecto genera el error "The secret could not be deserialized".
 </div>
 
@@ -403,8 +404,8 @@ aws secretsmanager update-secret \
       "Action": "secretsmanager:GetSecretValue",
       "Resource": "*",
       "Condition": {
-        "ArnLike": {"aws:sourceArn": "TU_CONNECT_INSTANCE_ARN"},
-        "StringEquals": {"aws:sourceAccount": "TU_ACCOUNT_ID"}
+        "ArnLike": {"aws:sourceArn": "CONNECT_INSTANCE_ARN"},
+        "StringEquals": {"aws:sourceAccount": "ACCOUNT_ID"}
       }
     }]
   }'</code></pre>
@@ -431,7 +432,7 @@ aws secretsmanager update-secret \
 </table>
 
 <div class="callout callout-info">
-    <strong>💡 Tip: Prompt del sistema para RAG</strong>
+    <strong>Tip: Prompt del sistema para RAG</strong>
     Configura el prompt del sistema en Lex para que las respuestas sean concisas (2-3 oraciones máximo). En llamadas telefónicas, respuestas largas frustran al usuario.
 </div>
 
@@ -546,7 +547,7 @@ flowchart TD
 <hr style="margin: 48px 0; border: none; border-top: 1px solid var(--border-color);">
 
 <h2>Sobre el autor</h2>
-<p><strong>David L.</strong> es Solutions Architect especializado en integraciones de IA conversacional y contact centers en la nube.</p>
+<p><strong>David S.</strong> es Solutions Architect en AWS especializado en IA.</p>
 
 <script>
     mermaid.initialize({ 

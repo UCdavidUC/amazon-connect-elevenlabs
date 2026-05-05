@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amazon Connect + ElevenLabs — Guías de Integración</title>
+    <title>Guías de Integración de Amazon Connect + ElevenLabs</title>
     <style>
         :root {
             --aws-orange: #FF9900;
@@ -146,13 +146,13 @@
 <header>
     <div class="container">
         <h1>Amazon Connect + ElevenLabs</h1>
-        <p>Guías de integración para contact centers con voz IA de alta calidad</p>
+        <p>Guías de integración para contact centers con personalización de voz en ElevenLabs</p>
     </div>
 </header>
 
 <div class="container">
     <p class="intro">
-        Dos enfoques para integrar voces de ElevenLabs en Amazon Connect. Elige según la complejidad conversacional que necesitas: RAG simple con Lex o un agente conversacional completo con herramientas y base de conocimiento.
+        A continuación se detallan dos enfoques para integrar voces de ElevenLabs en Amazon Connect. RAG simple con Lex o un agente conversacional completo con herramientas y base de conocimiento.
     </p>
 
     <div class="cards">
@@ -160,7 +160,8 @@
             <span class="badge">Escenario 1</span>
             <h2>ElevenLabs TTS + Lex con Bedrock RAG</h2>
             <p>
-                Reemplaza Amazon Polly con ElevenLabs y usa Lex con Bedrock Knowledge Base para responder preguntas. El flujo es simple: un loop directo donde Lex maneja toda la conversación de forma nativa. Ideal para FAQ y soporte de primer nivel.
+                Utilizando ElevenLabs y Amazon Lex con Bedrock Knowledge Base para responder preguntas. 
+                El flujo es un ciclo directo donde Lex maneja la conversación de forma nativa. Es ideal para preguntas frecuentes y soporte de primer nivel.
             </p>
             <div class="services">
                 <span>Amazon Connect</span>
@@ -168,14 +169,14 @@
                 <span>Amazon Lex V2</span>
                 <span>Amazon Bedrock</span>
             </div>
-            <span class="cta">Leer guía completa</span>
+            <span class="cta">Leer guía</span>
         </a>
 
         <a href="blog_escenario_2_agente_elevenlabs.html" class="card">
             <span class="badge badge-purple">Escenario 2</span>
             <h2>ElevenLabs TTS + Agente Conversacional ElevenLabs</h2>
             <p>
-                Un agente de ElevenLabs maneja la lógica conversacional completa a través de un puente Lambda WebSocket. Soporta herramientas (consultar pedidos, crear tickets), base de conocimiento propia y manejo de contexto avanzado. Para conversaciones complejas con acciones.
+                Un agente de ElevenLabs maneja la lógica conversacional a través de un WebSocket con Lambda. Soporta herramientas (consultar pedidos, crear tickets), base de conocimiento propia y manejo de contexto avanzado. Para conversaciones complejas con acciones.
             </p>
             <div class="services">
                 <span>Amazon Connect</span>
@@ -189,7 +190,7 @@
 </div>
 
 <footer>
-    <p>Código fuente disponible en <a href="https://github.com">GitHub</a> · Desplegado con AWS CDK · Documentación en español de México</p>
+    <p>Código fuente disponible en <a href="https://github.com/UCdavidUC/amazon-connect-elevenlabs">GitHub</a> · Construido con AWS CDK · Documentación en español</p>
 </footer>
 
 </body>
