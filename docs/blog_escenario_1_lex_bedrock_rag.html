@@ -308,24 +308,24 @@
 <div class="diagram-container">
     <pre class="mermaid">
 flowchart TD
-    A[📞 Llamada Entrante] --> B[Amazon Connect<br/>Flujo de Contacto]
-    B --> C[Set Voice<br/>ElevenLabs TTS]
-    C --> D[Play Prompt<br/>Bienvenida]
-    D --> E[Get Customer Input<br/>Lex + Bedrock RAG]
+    A["Llamada Entrante"] --> B["Amazon Connect - Flujo de Contacto"]
+    B --> C["Set Voice - ElevenLabs TTS"]
+    C --> D["Play Prompt - Bienvenida"]
+    D --> E["Get Customer Input - Lex + Bedrock RAG"]
     
-    E -->|FallbackIntent<br/>RAG responde| E
-    E -->|EndConversation| F[Play Prompt<br/>Despedida]
-    E -->|TransferToAgent| G[Play Prompt<br/>Transferencia]
-    E -->|Timeout| H[Play Prompt<br/>¿Sigue ahí?]
-    E -->|Error| I[Respaldo Polly<br/>+ Transfer Queue]
+    E -->|"FallbackIntent - RAG responde"| E
+    E -->|"EndConversation"| F["Play Prompt - Despedida"]
+    E -->|"TransferToAgent"| G["Play Prompt - Transferencia"]
+    E -->|"Timeout"| H["Play Prompt - Sigue ahi?"]
+    E -->|"Error"| I["Respaldo Polly + Transfer Queue"]
     
-    F --> J[🔴 Disconnect]
-    G --> K[Transfer to Queue<br/>Agentes Humanos]
+    F --> J["Disconnect"]
+    G --> K["Transfer to Queue - Agentes Humanos"]
     H --> E
     
-    C -.->|API Key| L[(Secrets Manager)]
-    L -.->|Cifrado| M[KMS Key]
-    E -.->|NLU + RAG| N[Amazon Bedrock<br/>Knowledge Base]
+    C -.->|"API Key"| L[("Secrets Manager")]
+    L -.->|"Cifrado"| M["KMS Key"]
+    E -.->|"NLU + RAG"| N["Amazon Bedrock - Knowledge Base"]
 
     style A fill:#FF9900,color:#fff
     style C fill:#0073BB,color:#fff
@@ -443,25 +443,25 @@ aws secretsmanager update-secret \
 <div class="diagram-container">
     <pre class="mermaid">
 flowchart TD
-    Entry[Entry Point] --> SV[<strong>Bloque 1</strong><br/>Set Voice - ElevenLabs<br/>Model: eleven_flash_v2_5<br/>Voice: tu_voice_id<br/>Secret ARN: tu_secret_arn]
+    Entry["Entry Point"] --> SV["Bloque 1 - Set Voice ElevenLabs"]
     
-    SV -->|Success| PP1[<strong>Bloque 2</strong><br/>Play Prompt<br/>&quot;Bienvenido. Soy su asistente virtual.&quot;]
-    SV -->|Error| ERR[Respaldo: Polly → Transfer Queue]
+    SV -->|"Success"| PP1["Bloque 2 - Play Prompt Bienvenida"]
+    SV -->|"Error"| ERR["Respaldo: Polly - Transfer Queue"]
     
-    PP1 --> GCI[<strong>Bloque 3</strong><br/>Get Customer Input<br/>Bot: AsistenteRAG / live<br/>Timeout: 7s]
+    PP1 --> GCI["Bloque 3 - Get Customer Input - AsistenteRAG"]
     
-    GCI -->|FallbackIntent<br/>Lex responde con RAG| GCI
+    GCI -->|"FallbackIntent"| GCI
     
-    GCI -->|EndConversation| PP2[<strong>Bloque 4</strong><br/>Play Prompt<br/>&quot;Gracias. ¡Hasta luego!&quot;]
-    PP2 --> DC[Disconnect]
+    GCI -->|"EndConversation"| PP2["Bloque 4 - Play Prompt Despedida"]
+    PP2 --> DC["Disconnect"]
     
-    GCI -->|TransferToAgent| PP3[<strong>Bloque 5</strong><br/>Play Prompt<br/>&quot;Lo transfiero con un agente.&quot;]
-    PP3 --> TQ[Transfer to Queue]
+    GCI -->|"TransferToAgent"| PP3["Bloque 5 - Play Prompt Transferencia"]
+    PP3 --> TQ["Transfer to Queue"]
     
-    GCI -->|Timeout| PP4[<strong>Bloque 6</strong><br/>Play Prompt<br/>&quot;¿Sigue ahí?&quot;]
+    GCI -->|"Timeout"| PP4["Bloque 6 - Play Prompt Sigue ahi?"]
     PP4 --> GCI
     
-    GCI -->|Error| ERR
+    GCI -->|"Error"| ERR
 
     style Entry fill:#FF9900,color:#fff
     style SV fill:#0073BB,color:#fff

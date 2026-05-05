@@ -258,22 +258,22 @@ npx cdk deploy</code></pre>
 <div class="diagram-container">
     <pre class="mermaid">
 flowchart TD
-    Entry[Entry Point] --> B1["<b>Bloque 1</b><br/>Set Voice (ElevenLabs)<br/>Model: eleven_flash_v2_5"]
-    B1 -->|Error| ERR[Respaldo Polly + Transfer]
-    B1 -->|Success| B2["<b>Bloque 2</b><br/>Invoke Lambda<br/>action = greet"]
-    B2 -->|Error| ERR
-    B2 -->|Success| B3["<b>Bloque 3</b><br/>Play Prompt<br/>$.External.message"]
-    B3 --> B4["<b>Bloque 4</b><br/>Get Customer Input<br/>Lex: Passthrough / live"]
-    B4 -->|FallbackIntent| B5["<b>Bloque 5</b><br/>Set Contact Attributes<br/>userInput = InputTranscript"]
-    B4 -->|Timeout| B4
-    B4 -->|Error| ERR
-    B5 --> B6["<b>Bloque 6</b><br/>Invoke Lambda<br/>action = process_input"]
-    B6 -->|Error| ERR
-    B6 -->|Success| B7{"<b>Bloque 7</b><br/>Check: endConversation"}
-    B7 -->|true| B8["<b>Bloque 8</b><br/>Play Prompt + Disconnect"]
-    B7 -->|no match| B9{"<b>Bloque 9</b><br/>Check: transferToAgent"}
-    B9 -->|true| B10["<b>Bloque 10</b><br/>Play Prompt + Transfer Queue"]
-    B9 -->|no match| B11["<b>Bloque 11</b><br/>Play Prompt<br/>$.External.message"]
+    Entry["Entry Point"] --> B1["Bloque 1 - Set Voice ElevenLabs"]
+    B1 -->|"Error"| ERR["Respaldo Polly + Transfer"]
+    B1 -->|"Success"| B2["Bloque 2 - Invoke Lambda - greet"]
+    B2 -->|"Error"| ERR
+    B2 -->|"Success"| B3["Bloque 3 - Play Prompt saludo"]
+    B3 --> B4["Bloque 4 - Get Customer Input - Lex Passthrough"]
+    B4 -->|"FallbackIntent"| B5["Bloque 5 - Set Contact Attributes"]
+    B4 -->|"Timeout"| B4
+    B4 -->|"Error"| ERR
+    B5 --> B6["Bloque 6 - Invoke Lambda - process_input"]
+    B6 -->|"Error"| ERR
+    B6 -->|"Success"| B7{"Bloque 7 - endConversation?"}
+    B7 -->|"true"| B8["Bloque 8 - Play Prompt + Disconnect"]
+    B7 -->|"no match"| B9{"Bloque 9 - transferToAgent?"}
+    B9 -->|"true"| B10["Bloque 10 - Play Prompt + Transfer Queue"]
+    B9 -->|"no match"| B11["Bloque 11 - Play Prompt respuesta"]
     B11 --> B4
 
     style Entry fill:#FF9900,color:#fff
