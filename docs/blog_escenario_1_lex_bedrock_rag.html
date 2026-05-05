@@ -197,7 +197,7 @@
         }
 
         .diagram-container {
-            background: var(--aws-light-gray);
+            background: #FFFFFF;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 24px;
@@ -328,9 +328,9 @@ flowchart TD
     E -.->|"NLU + RAG"| N["Amazon Bedrock - Knowledge Base"]
 
     style A fill:#FF9900,color:#fff
-    style C fill:#0073BB,color:#fff
-    style E fill:#0073BB,color:#fff
-    style N fill:#0073BB,color:#fff
+    style C fill:#232F3E,color:#fff
+    style E fill:#232F3E,color:#fff
+    style N fill:#232F3E,color:#fff
     style J fill:#D13212,color:#fff
     style K fill:#1B660F,color:#fff
     </pre>
@@ -464,8 +464,8 @@ flowchart TD
     GCI -->|"Error"| ERR
 
     style Entry fill:#FF9900,color:#fff
-    style SV fill:#0073BB,color:#fff
-    style GCI fill:#0073BB,color:#fff
+    style SV fill:#232F3E,color:#fff
+    style GCI fill:#232F3E,color:#fff
     style DC fill:#D13212,color:#fff
     style TQ fill:#1B660F,color:#fff
     style ERR fill:#D13212,color:#fff
@@ -554,12 +554,17 @@ flowchart TD
         startOnLoad: true,
         theme: 'base',
         themeVariables: {
-            primaryColor: '#0073BB',
-            primaryTextColor: '#fff',
-            primaryBorderColor: '#0073BB',
+            background: '#FFFFFF',
+            primaryColor: '#232F3E',
+            primaryTextColor: '#FFFFFF',
+            primaryBorderColor: '#232F3E',
             lineColor: '#545B64',
             secondaryColor: '#FF9900',
-            tertiaryColor: '#F2F3F3',
+            tertiaryColor: '#FFFFFF',
+            mainBkg: '#FFFFFF',
+            nodeBorder: '#232F3E',
+            clusterBkg: '#FFFFFF',
+            fontSize: '16px',
             fontFamily: '"Amazon Ember", "Helvetica Neue", Arial, sans-serif'
         }
     });
